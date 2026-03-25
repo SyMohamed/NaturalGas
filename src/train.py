@@ -1,6 +1,6 @@
 """Training and evaluation routines."""
 
-import os
+import json
 from pathlib import Path
 
 import torch
@@ -77,9 +77,12 @@ def train(cfg: dict):
 
     # Training loop
     best_val = float("inf")
+    history = {"train_loss": [], "val_loss": []}
     for epoch in range(1, cfg["training"]["num_epochs"] + 1):
         train_loss = train_one_epoch(model, loaders["train"], criterion, optimizer, device)
         val_loss = evaluate(model, loaders["val"], criterion, device)
+        history["train_loss"].append(train_loss)
+        history["val_loss"].append(val_loss)
         print(f"Epoch {epoch:3d} | train_loss={train_loss:.6f} | val_loss={val_loss:.6f}")
 
         if val_loss < best_val:
@@ -89,8 +92,16 @@ def train(cfg: dict):
     # Test
     test_loss = evaluate(model, loaders["test"], criterion, device)
     print(f"\nTest loss: {test_loss:.6f}")
+    history["test_loss"] = test_loss
 
+    # Save artifacts
     torch.save(model.state_dict(), ckpt_dir / "final_model.pt")
+    log_dir = Path(cfg["paths"]["log_dir"])
+    log_dir.mkdir(parents=True, exist_ok=True)
+    with open(log_dir / "history.json", "w") as f:
+        json.dump(history, f, indent=2)
+    print(f"Loss history saved to {log_dir / 'history.json'}")
+
     return model
 
 
