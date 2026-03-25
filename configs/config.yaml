@@ -1,0 +1,40 @@
+# ─── Data ───────────────────────────────────────────────────────
+data:
+  spectra_csv: "data/standard_simulated_spectra_interp_excess.csv"
+  concentration_csv: "data/standard_simulated_concentrations_interp_excess.csv"
+  pnnl_csv: "data/PNNL_CS.csv"
+  wavenumber_range: [2963.0, 2968.0]
+  num_wavenumber_points: 600
+  gas_names: ["Methane", "Ethane", "Propane", "nC4", "iC4", "nC5", "iC5", "nC6", "nC7"]
+  target_species: 7          # first 7 of gas_names used as regression targets
+  path_length_cm: 10.0       # cm
+
+# ─── Splitting ──────────────────────────────────────────────────
+split:
+  train_frac: 0.80
+  val_frac: 0.10
+  test_frac: 0.10
+
+# ─── Model ──────────────────────────────────────────────────────
+model:
+  in_channels: 1
+  conv1_out: 32
+  conv2_out: 64
+  kernel_size: 3
+  pool_size: 2
+  fc1_out: 128
+  num_targets: 7             # output dimension
+
+# ─── Training ───────────────────────────────────────────────────
+training:
+  batch_size: 16
+  num_epochs: 20
+  learning_rate: 0.0001
+  device: "auto"             # "auto" | "cpu" | "cuda"
+  seed: 42
+
+# ─── Paths ──────────────────────────────────────────────────────
+paths:
+  checkpoint_dir: "experiments/checkpoints"
+  log_dir: "experiments/logs"
+  plot_dir: "experiments/plots"
